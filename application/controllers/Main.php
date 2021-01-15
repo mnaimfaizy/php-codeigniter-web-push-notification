@@ -1,6 +1,10 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+// -- Define WebPush namespaces
+use Minishlink\WebPush\WebPush;
+use Minishlink\WebPush\Subscription;
+
 // -- Change the name of the controller to Main
 class Main extends CI_Controller {
 
