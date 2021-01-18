@@ -22,7 +22,8 @@ class Main extends CI_Controller {
 
 	public function index()
 	{
-		$this->load->view('index');
+		$this->data['items'] = $this->main_model->get_data('posts')->result_array();
+		$this->load->view('index', $this->data);
 	}
 
 	public function add_item() {
@@ -73,6 +74,14 @@ class Main extends CI_Controller {
 
 		} else {
 			$this->load->view('add_item');
+		}
+	}
+
+	public function delete_item() {
+		if ($this->main_model->delete_record('posts', $this->input->post('id'))) {
+			echo '1';
+		} else {
+			echo '0';
 		}
 	}
 

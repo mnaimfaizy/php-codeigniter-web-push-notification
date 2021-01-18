@@ -50,130 +50,47 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         <?php } ?>
 
+        <?php if(isset($_GET['msg'])) { ?>
+          <?php if($_GET['msg'] === 'success') { ?>
+            <div class="alert alert-success" role="alert">
+                <?php echo 'Record deleted successfully.'; ?>
+            </div>
+          <?php } else if($_GET['msg'] === 'error') { ?>
+            <div class="alert alert-danger" role="alert">
+                <?php echo 'Sorry there has been an issue, please try again.'; ?>
+            </div>
+          <?php } ?>
+        <?php } ?>
+
           <h2>Subscribers List</h2>
           <div class="table-responsive">
             <table class="table table-striped table-sm">
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Endpoint</th>
-                  <th>Created at</th>
+                  <th>Title</th>
+                  <th>Description</th>
+                  <th>Image</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
+              <?php if(isset($items)) {
+                    $no = 1;
+                    foreach($items as $item) {?>
                 <tr>
-                  <td>1,001</td>
-                  <td>Lorem</td>
-                  <td>ipsum</td>
-                  <td>dolor</td>
-                  <td>sit</td>
+                  <td><?php echo $no++; ?></td>
+                  <td><?php echo $item['title']; ?></td>
+                  <td><?php echo $item['description']; ?></td>
+                  <td><?php echo $item['image']; ?></td>
+                  <td><button id="<?php echo $item['id']; ?>" name="delete" onclick="delete_record(this.id)" class="btn btn-sm btn-danger">DELETE</button></td>
                 </tr>
+              <?php } 
+                  }else { ?>
                 <tr>
-                  <td>1,002</td>
-                  <td>amet</td>
-                  <td>consectetur</td>
-                  <td>adipiscing</td>
-                  <td>elit</td>
+                  <td colspan="5">Sorry! there is no record to be displayed.</td>
                 </tr>
-                <tr>
-                  <td>1,003</td>
-                  <td>Integer</td>
-                  <td>nec</td>
-                  <td>odio</td>
-                  <td>Praesent</td>
-                </tr>
-                <tr>
-                  <td>1,003</td>
-                  <td>libero</td>
-                  <td>Sed</td>
-                  <td>cursus</td>
-                  <td>ante</td>
-                </tr>
-                <tr>
-                  <td>1,004</td>
-                  <td>dapibus</td>
-                  <td>diam</td>
-                  <td>Sed</td>
-                  <td>nisi</td>
-                </tr>
-                <tr>
-                  <td>1,005</td>
-                  <td>Nulla</td>
-                  <td>quis</td>
-                  <td>sem</td>
-                  <td>at</td>
-                </tr>
-                <tr>
-                  <td>1,006</td>
-                  <td>nibh</td>
-                  <td>elementum</td>
-                  <td>imperdiet</td>
-                  <td>Duis</td>
-                </tr>
-                <tr>
-                  <td>1,007</td>
-                  <td>sagittis</td>
-                  <td>ipsum</td>
-                  <td>Praesent</td>
-                  <td>mauris</td>
-                </tr>
-                <tr>
-                  <td>1,008</td>
-                  <td>Fusce</td>
-                  <td>nec</td>
-                  <td>tellus</td>
-                  <td>sed</td>
-                </tr>
-                <tr>
-                  <td>1,009</td>
-                  <td>augue</td>
-                  <td>semper</td>
-                  <td>porta</td>
-                  <td>Mauris</td>
-                </tr>
-                <tr>
-                  <td>1,010</td>
-                  <td>massa</td>
-                  <td>Vestibulum</td>
-                  <td>lacinia</td>
-                  <td>arcu</td>
-                </tr>
-                <tr>
-                  <td>1,011</td>
-                  <td>eget</td>
-                  <td>nulla</td>
-                  <td>Class</td>
-                  <td>aptent</td>
-                </tr>
-                <tr>
-                  <td>1,012</td>
-                  <td>taciti</td>
-                  <td>sociosqu</td>
-                  <td>ad</td>
-                  <td>litora</td>
-                </tr>
-                <tr>
-                  <td>1,013</td>
-                  <td>torquent</td>
-                  <td>per</td>
-                  <td>conubia</td>
-                  <td>nostra</td>
-                </tr>
-                <tr>
-                  <td>1,014</td>
-                  <td>per</td>
-                  <td>inceptos</td>
-                  <td>himenaeos</td>
-                  <td>Curabitur</td>
-                </tr>
-                <tr>
-                  <td>1,015</td>
-                  <td>sodales</td>
-                  <td>ligula</td>
-                  <td>in</td>
-                  <td>libero</td>
-                </tr>
+              <?php } ?>
               </tbody>
             </table>
           </div>
@@ -190,11 +107,35 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	<!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="assets/js/jquery-3.2.1.slim.min.js"></script>
+    <script src="assets/js/jquery-3.5.1.min.js"></script>
 	<script src="assets/js/popper.min.js"></script>
 	<script  src="assets/js/bootstrap.min.js"></script>
 
 	<script src="assets/js/app.js"></script>
+
+  <script>
+
+    function delete_record(id) {
+      if(confirm('Are you sure you want to delete this record')) {
+        $.ajax({
+            url: "<?php echo base_url('delete_item'); ?>",
+            method: "POST",
+            data: {
+                id: id
+            },
+            success: function(data) {
+                console.log(data);
+                if(data == '1') {
+                  window.location = '<?php echo base_url('/?msg=success'); ?>';
+                } else if(data == '0') {
+                  window.location = '<?php echo base_url('/?msg=error'); ?>';
+                }
+            }
+        });
+      }
+    }
+
+  </script>
 
 </body>
 </html>

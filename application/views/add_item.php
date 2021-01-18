@@ -83,7 +83,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	<!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="assets/js/jquery-3.2.1.slim.min.js"></script>
+    <script src="assets/js/jquery-3.5.1.min.js"></script>
 	<script src="assets/js/popper.min.js"></script>
 	<script  src="assets/js/bootstrap.min.js"></script>
 
