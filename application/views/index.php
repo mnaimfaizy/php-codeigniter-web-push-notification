@@ -23,13 +23,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 	<div class="container-fluid">
       <div class="row">
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+      <nav class="col-md-2 d-none d-md-block bg-light sidebar">
           <div class="sidebar-sticky">
             <ul class="nav flex-column">
               <li class="nav-item">
-                <a class="nav-link active" href="#">
+                <a class="nav-link active" href="<?php echo base_url(); ?>">
                   <span data-feather="home"></span>
                   Dashboard <span class="sr-only">(current)</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="add_item">
+                  <span data-feather="home"></span>
+                  ADD Item 
                 </a>
               </li>
             </ul>
@@ -37,6 +43,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </nav>
 
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+
+        <?php if(isset($success_message)) { ?>
+            <div class="alert alert-success" role="alert">
+                <?php echo $success_message; ?>
+            </div>
+        <?php } ?>
 
           <h2>Subscribers List</h2>
           <div class="table-responsive">

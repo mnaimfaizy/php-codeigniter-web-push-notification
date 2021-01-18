@@ -8,18 +8,72 @@ use Minishlink\WebPush\Subscription;
 // -- Change the name of the controller to Main
 class Main extends CI_Controller {
 
+	public $data = [];
+
 	public function __construct()
 	{
 		parent::__construct();
 
 		$this->load->database();
 		$this->load->model('main_model');
-		$this->load->helper(['url']);
+		$this->load->helper(['form', 'url']);
+		$this->load->library(['form_validation', 'upload']);
 	}
 
 	public function index()
 	{
 		$this->load->view('index');
+	}
+
+	public function add_item() {
+
+		if(isset($_POST['btn_add_item'])) {
+
+			$this->form_validation->set_rules('title', 'Title', 'required');
+			$this->form_validation->set_rules('description', 'Description', 'required');
+			if (empty($_FILES['file']['name']))
+			{
+				$this->form_validation->set_rules('image', 'Image', 'required');
+			}
+
+			if ($this->form_validation->run() == FALSE)
+			{
+				$errors = validation_errors();
+				$this->load->view('add_item', $errors);
+			}
+			else
+			{
+				$config['upload_path'] = './assets/img/';
+				$config['allowed_types'] = 'jpg|jpeg|png|gif';
+				$config['max_size'] = '1024';  // 1MB file size is allowed
+				$config['max_filename'] = '150';
+				$config['overwrite'] = TRUE;
+				$config['file_ext_tolower'] = TRUE;
+
+				$this->upload->initialize($config);
+
+				$this->upload->do_upload('file');
+				$uploadData = $this->upload->data();
+				$image = $uploadData['file_name'];
+
+				$insert_data = array(
+					'title' => $this->input->post('title'),
+					'description' => $this->input->post('description'),
+					'image' => $image,
+				);
+
+				if ($this->main_model->insert('posts', $insert_data)) {
+					$this->data['success_message'] = 'Record added successfully.';
+					$this->load->view('index', $this->data);
+				} else {
+					$this->data['error_message'] = 'Sorry! There is an error, please try again';
+					$this->load->view('add_item', $this->data);
+				}
+			}
+
+		} else {
+			$this->load->view('add_item');
+		}
 	}
 
 	/* ------------------------------------------ Web Push Notifications ---------------------------------------------------- */
