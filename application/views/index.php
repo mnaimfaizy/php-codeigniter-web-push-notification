@@ -59,6 +59,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="alert alert-danger" role="alert">
                 <?php echo 'Sorry there has been an issue, please try again.'; ?>
             </div>
+          <?php } else if($_GET['msg'] === '1') { ?>
+            <div class="alert alert-success" role="alert">
+                <?php echo 'Record inserted successfully.'; ?>
+            </div>
           <?php } ?>
         <?php } ?>
 
@@ -106,8 +110,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 	<!-- Bootstrap core JavaScript
     ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="assets/js/jquery-3.5.1.min.js"></script>
+  <!-- Placed at the end of the document so the pages load faster -->
+  <script src="assets/js/jquery-3.5.1.min.js"></script>
 	<script src="assets/js/popper.min.js"></script>
 	<script  src="assets/js/bootstrap.min.js"></script>
 

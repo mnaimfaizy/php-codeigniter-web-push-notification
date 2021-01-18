@@ -67,4 +67,25 @@ class Main_model extends CI_Model
         $this->db->where('id', $id);
         return ($this->db->delete($table)) ? TRUE : FALSE;
     }
+
+        /**
+     * @param string $table
+     * @param array  $data
+     *
+     * @return array
+     */
+    protected function _filter_data($table, $data)
+    {
+        $filtered_data = [];
+        $columns = $this->db->list_fields($table);
+
+        if (is_array($data)) {
+            foreach ($columns as $column) {
+                if (array_key_exists($column, $data))
+                    $filtered_data[$column] = $data[$column];
+            }
+        }
+
+        return $filtered_data;
+    }
 }

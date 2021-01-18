@@ -20,6 +20,49 @@ class Main extends CI_Controller {
 		$this->load->library(['form_validation', 'upload']);
 	}
 
+	protected function sendMessage($keys_auth, $data, $title, $image, $id) {
+
+		// here I'll get the subscription endpoint in the POST parameters
+		// but in reality, you'll get this information in your database
+		// because you already stored it (cf. push_subscription.php)
+
+
+		// $subscription = Subscription::create(json_decode(file_get_contents('php://input'), true));
+		$subscription = Subscription::create($keys_auth);
+		$auth = array(
+			'VAPID' => array(
+				'subject' => 'Some Subjet here',
+				'publicKey' => file_get_contents(APPPATH . './../keys/public_key.txt'), // don't forget that your public key also lives in app.js
+				'privateKey' => file_get_contents(APPPATH . './../keys/private_key.txt'), // in the real world, this would be in a secret file
+			),
+		);
+
+		$webPush = new WebPush($auth);
+
+		$options = array(
+			'title' => "$title",
+			'body' => "$data",
+			'icon' => 'assets/img/logo.png',
+			'badge' => 'assets/img/logo.png',
+			'image' => "https://localhost/php-codeigniter-web-push-notification/assets/img/".$image,
+			'url' => 'https://localhost/php-codeigniter-web-push-notification'
+		);
+		$report = $webPush->sendOneNotification(
+			$subscription,
+			json_encode($options)
+		);
+
+		// handle eventual errors here, and remove the subscription from your server if it is expired
+		$endpoint = $report->getRequest()->getUri()->__toString();
+
+		if ($report->isSuccess()) {
+			return "[v] Message sent successfully for subscription {$endpoint}.";
+		} else {
+			return "[x] Message failed to sent for subscription {$endpoint}: {$report->getReason()}";
+		}
+
+	}
+
 	public function index()
 	{
 		$this->data['items'] = $this->main_model->get_data('posts')->result_array();
@@ -37,13 +80,10 @@ class Main extends CI_Controller {
 				$this->form_validation->set_rules('image', 'Image', 'required');
 			}
 
-			if ($this->form_validation->run() == FALSE)
-			{
+			if ($this->form_validation->run() == FALSE) {
 				$errors = validation_errors();
 				$this->load->view('add_item', $errors);
-			}
-			else
-			{
+			} else {
 				$config['upload_path'] = './assets/img/';
 				$config['allowed_types'] = 'jpg|jpeg|png|gif';
 				$config['max_size'] = '1024';  // 1MB file size is allowed
@@ -63,9 +103,29 @@ class Main extends CI_Controller {
 					'image' => $image,
 				);
 
-				if ($this->main_model->insert('posts', $insert_data)) {
-					$this->data['success_message'] = 'Record added successfully.';
-					$this->load->view('index', $this->data);
+				$id = $this->main_model->insert_and_return_id('posts', $insert_data);
+				if (!empty($id)) {
+					$messages = array();
+					$data = substr(strip_tags($this->input->post('description')), 0, 100);
+					$title = $this->input->post('title');
+					$image = $image;
+
+					$query = $this->main_model->get_data('subscribers')->result();
+					foreach($query as $row) {
+
+						$keys_auth = array(
+							"contentEncoding" => "aesgcm",
+							"endpoint" => $row->endpoint,
+							"keys" => array(
+									"auth" => $row->auth,
+									"p256dh" => $row->p256dh
+								)
+						);
+
+						$msg = $this->sendMessage($keys_auth, $data, $title, $image, $id);
+						$messages['msg'] = $msg;
+					}
+					redirect('/?msg=1', 'refresh');
 				} else {
 					$this->data['error_message'] = 'Sorry! There is an error, please try again';
 					$this->load->view('add_item', $this->data);
