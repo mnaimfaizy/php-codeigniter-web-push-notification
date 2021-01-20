@@ -4,86 +4,142 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Welcome to CodeIgniter</title>
+	<title>PHP CodeIgniter Web Push Application</title>
 
-	<style type="text/css">
-
-	::selection { background-color: #E13300; color: white; }
-	::-moz-selection { background-color: #E13300; color: white; }
-
-	body {
-		background-color: #fff;
-		margin: 40px;
-		font: 13px/20px normal Helvetica, Arial, sans-serif;
-		color: #4F5155;
-	}
-
-	a {
-		color: #003399;
-		background-color: transparent;
-		font-weight: normal;
-	}
-
-	h1 {
-		color: #444;
-		background-color: transparent;
-		border-bottom: 1px solid #D0D0D0;
-		font-size: 19px;
-		font-weight: normal;
-		margin: 0 0 14px 0;
-		padding: 14px 15px 10px 15px;
-	}
-
-	code {
-		font-family: Consolas, Monaco, Courier New, Courier, monospace;
-		font-size: 12px;
-		background-color: #f9f9f9;
-		border: 1px solid #D0D0D0;
-		color: #002166;
-		display: block;
-		margin: 14px 0 14px 0;
-		padding: 12px 10px 12px 10px;
-	}
-
-	#body {
-		margin: 0 15px 0 15px;
-	}
-
-	p.footer {
-		text-align: right;
-		font-size: 11px;
-		border-top: 1px solid #D0D0D0;
-		line-height: 32px;
-		padding: 0 10px 0 10px;
-		margin: 20px 0 0 0;
-	}
-
-	#container {
-		margin: 10px;
-		border: 1px solid #D0D0D0;
-		box-shadow: 0 0 8px #D0D0D0;
-	}
-	</style>
+	<link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+	<!-- Custom styles for this template -->
+	<link href="assets/css/sticky-footer-navbar.css" rel="stylesheet">
 </head>
 <body>
 
-<div id="container">
-	<h1>Welcome to CodeIgniter!</h1>
+	<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">PHP CodeIgniter Web Push</a>
+      <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+          <button id="push-subscription-button" class="btn btn-sm btn-primary">Enable Push Notification</button>
+        </li>
+      </ul>
+    </nav>
 
-	<div id="body">
-		<p>The page you are looking at is being generated dynamically by CodeIgniter.</p>
+	<div class="container-fluid">
+      <div class="row">
+      <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+          <div class="sidebar-sticky">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link active" href="<?php echo base_url(); ?>">
+                  <span data-feather="home"></span>
+                  Dashboard <span class="sr-only">(current)</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="add_item">
+                  <span data-feather="home"></span>
+                  ADD Item 
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
 
-		<p>If you would like to edit this page you'll find it located at:</p>
-		<code>application/views/welcome_message.php</code>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
 
-		<p>The corresponding controller for this page is found at:</p>
-		<code>application/controllers/Welcome.php</code>
+        <?php if(isset($success_message)) { ?>
+            <div class="alert alert-success" role="alert">
+                <?php echo $success_message; ?>
+            </div>
+        <?php } ?>
 
-		<p>If you are exploring CodeIgniter for the very first time, you should start by reading the <a href="user_guide/">User Guide</a>.</p>
-	</div>
+        <?php if(isset($_GET['msg'])) { ?>
+          <?php if($_GET['msg'] === 'success') { ?>
+            <div class="alert alert-success" role="alert">
+                <?php echo 'Record deleted successfully.'; ?>
+            </div>
+          <?php } else if($_GET['msg'] === 'error') { ?>
+            <div class="alert alert-danger" role="alert">
+                <?php echo 'Sorry there has been an issue, please try again.'; ?>
+            </div>
+          <?php } else if($_GET['msg'] === '1') { ?>
+            <div class="alert alert-success" role="alert">
+                <?php echo 'Record inserted successfully.'; ?>
+            </div>
+          <?php } ?>
+        <?php } ?>
 
-	<p class="footer">Page rendered in <strong>{elapsed_time}</strong> seconds. <?php echo  (ENVIRONMENT === 'development') ?  'CodeIgniter Version <strong>' . CI_VERSION . '</strong>' : '' ?></p>
-</div>
+          <h2>Subscribers List</h2>
+          <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Title</th>
+                  <th>Description</th>
+                  <th>Image</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+              <?php if(isset($items)) {
+                    $no = 1;
+                    foreach($items as $item) {?>
+                <tr>
+                  <td><?php echo $no++; ?></td>
+                  <td><?php echo $item['title']; ?></td>
+                  <td><?php echo $item['description']; ?></td>
+                  <td><?php echo $item['image']; ?></td>
+                  <td><button id="<?php echo $item['id']; ?>" name="delete" onclick="delete_record(this.id)" class="btn btn-sm btn-danger">DELETE</button></td>
+                </tr>
+              <?php } 
+                  }else { ?>
+                <tr>
+                  <td colspan="5">Sorry! there is no record to be displayed.</td>
+                </tr>
+              <?php } ?>
+              </tbody>
+            </table>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <div class="container">
+        <span class="text-muted">Place sticky footer content here.</span>
+      </div>
+    </footer>
+
+	<!-- Bootstrap core JavaScript
+    ================================================== -->
+  <!-- Placed at the end of the document so the pages load faster -->
+  <script src="assets/js/jquery-3.5.1.min.js"></script>
+	<script src="assets/js/popper.min.js"></script>
+	<script  src="assets/js/bootstrap.min.js"></script>
+
+	<script src="assets/js/app.js"></script>
+
+  <script>
+
+    function delete_record(id) {
+      if(confirm('Are you sure you want to delete this record')) {
+        $.ajax({
+            url: "<?php echo base_url('delete_item'); ?>",
+            method: "POST",
+            data: {
+                id: id
+            },
+            success: function(data) {
+                console.log(data);
+                if(data == '1') {
+                  window.location = '<?php echo base_url('/?msg=success'); ?>';
+                } else if(data == '0') {
+                  window.location = '<?php echo base_url('/?msg=error'); ?>';
+                }
+            }
+        });
+      }
+    }
+
+  </script>
 
 </body>
 </html>
